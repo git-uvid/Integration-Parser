@@ -1,0 +1,3 @@
+Job Name,Job Type,ModifiedBy,LastUpdated,Source,Target,Triggered_By_Button,Button_Location,Description,IsScheduled,Other Comments
+Job_Groovy_Cube_FullSnapshot,Groovy,Uvid,30-OCT-2024,Multiple-Cube,Multiple-Cube,Yes,Admin/Configure and Control Form(configure_forecast - Snapshot full copy btn Step-2),Collecting all the cube names and execute the process / load for each cubes to take snapshot from source version to target version,,
+Job_Groovy_Cube_BS_Snapshot,Groovy,Uvid,25-OCT-2024,Multiple Cube,Multiple Cube,Yes,Admin/Configure and Control Form(configure_forecast - BS Snapshot btn Step-8),Take Snapshot Forecast to AOP of the BS related cube data for selected time,,

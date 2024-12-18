@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="NoelGroup Snapshot" version="24.2" modified="1734351849208" modifiedBy="Uvid" olapId="p30">
+  <headers>
+    <header name="comment" modified="1726664019815" modifiedBy="Uvid">
+      <comment><![CDATA[Project description]]></comment>
+    </header>
+  </headers>
+  <variables>
+    <variable modified="1729835299946" name="var_cube" modifiedBy="Uvid">
+      <comment><![CDATA[GrossMargin]]></comment>
+      <default>Balance Sheet</default>
+    </variable>
+    <variable modified="1726669076246" name="var_SrcVersion" modifiedBy="Uvid">
+      <comment />
+      <default>Forecast</default>
+    </variable>
+    <variable modified="1729838224951" name="var_TarVersion" modifiedBy="Uvid">
+      <comment />
+      <default>AOP</default>
+    </variable>
+    <variable modified="1729835324780" name="var_SrcTime" modifiedBy="Uvid">
+      <comment />
+      <default>2024</default>
+    </variable>
+    <variable modified="1729835685415" name="var_TarTime" modifiedBy="Uvid">
+      <comment />
+      <default>2025</default>
+    </variable>
+  </variables>
+  <connections>
+    <connection modified="1730793754028" name="Jedox OLAP connection" type="JedoxOlap" modifiedBy="Uvid">
+      <database><![CDATA[NoelGroup]]></database>
+      <host>Jedox-olap</host>
+      <port>80</port>
+      <user>Uvid</user>
+      <ssl>off</ssl>
+      <password encryption="AES">MowLlVsGS1O2P8/oeRjcC+qgO6F07nkJKq4=</password>
+    </connection>
+  </connections>
+  <extracts>
+    <extract modified="1730802962776" name="Extr_Cube_FullSnapshot" type="Cube" modifiedBy="Uvid">
+      <connection nameref="Jedox OLAP connection" />
+      <query celltype="both" drillthrough="false" onlyBasisAsDefault="true" useRules="true" zeroSuppressionType="excludeEmptyAndZero">
+        <dimensions>
+          <dimension name="Version">
+            <condition mode="onlyBases" operator="equal" type="accept"><![CDATA[${var_SrcVersion}]]></condition>
+          </dimension>
+        </dimensions>
+        <cube name="${var_cube}" />
+      </query>
+      <cache>false</cache>
+    </extract>
+    <extract modified="1726664022750" name="Extr_DimCubeName" type="Dimension" modifiedBy="Uvid">
+      <connection nameref="Jedox OLAP connection" />
+      <query>
+        <dimension name="Cube Name">
+          <condition mode="onlyBases" operator="equal" type="accept"><![CDATA[All Cubes]]></condition>
+        </dimension>
+      </query>
+      <attributesMode>standardAttributes</attributesMode>
+    </extract>
+    <extract modified="1729835374346" name="Extr_Cube_BS_Snapshot" type="Cube" modifiedBy="Uvid">
+      <connection nameref="Jedox OLAP connection" />
+      <query celltype="both" drillthrough="false" onlyBasisAsDefault="true" useRules="true" zeroSuppressionType="excludeEmptyAndZero">
+        <dimensions>
+          <dimension name="Time">
+            <condition mode="onlyBases" operator="equal" type="accept"><![CDATA[${var_SrcTime}]]></condition>
+          </dimension>
+          <dimension name="Version">
+            <condition mode="onlyBases" operator="equal" type="accept"><![CDATA[${var_SrcVersion}]]></condition>
+          </dimension>
+        </dimensions>
+        <cube name="${var_cube}" />
+      </query>
+      <cache>false</cache>
+    </extract>
+    <extract modified="1729870576496" name="CS_ZeroOut_Cube_BS_Snapshot" type="CubeSlice" modifiedBy="Uvid">
+      <comment><![CDATA[Here Source and Target Time are same.]]></comment>
+      <connection nameref="Jedox OLAP connection" />
+      <query mode="exclude" randomPaths="false">
+        <dimensions>
+          <dimension name="Time">
+            <condition mode="onlyBases" operator="equal" type="accept"><![CDATA[${var_SrcTime}]]></condition>
+          </dimension>
+          <dimension name="Version">
+            <condition mode="onlyBases" operator="equal" type="accept"><![CDATA[${var_TarVersion}]]></condition>
+          </dimension>
+        </dimensions>
+        <cube name="${var_cube}" />
+      </query>
+    </extract>
+    <extract modified="1730268625062" name="CS_ZeroOut_Cube_FullSnapshot" type="CubeSlice" modifiedBy="Uvid">
+      <connection nameref="Jedox OLAP connection" />
+      <query mode="exclude" randomPaths="false">
+        <dimensions>
+          <dimension name="Version">
+            <condition mode="onlyBases" operator="equal" type="accept"><![CDATA[${var_TarVersion}]]></condition>
+          </dimension>
+        </dimensions>
+        <cube name="${var_cube}" />
+      </query>
+    </extract>
+  </extracts>
+  <transforms>
+    <transform name="FT_Cube_FullSnapshot" type="FieldTransform" modified="1730268604055" modifiedBy="Uvid">
+      <sources>
+        <source nameref="TV_Cube_FullSnapshot" />
+      </sources>
+      <functions>
+        <function name="Version" type="Switch">
+          <inputs>
+            <input nameref="Version" />
+          </inputs>
+          <parameters>
+            <default>
+              <result constant="" />
+            </default>
+            <switchs>
+              <switch>
+                <condition operator="equal" type="accept" value="${var_SrcVersion}" />
+                <result constant="${var_TarVersion}" />
+              </switch>
+            </switchs>
+          </parameters>
+        </function>
+      </functions>
+      <cache>false</cache>
+    </transform>
+    <transform modified="1729835857543" name="FT_CubeName_ByAttr" type="FieldTransform" modifiedBy="Uvid">
+      <sources>
+        <source format="ea" nameref="Extr_DimCubeName" />
+      </sources>
+      <cache>false</cache>
+    </transform>
+    <transform name="TV_Cube_FullSnapshot" type="TableView" modified="1730268595736" modifiedBy="Uvid">
+      <sources>
+        <source nameref="Extr_Cube_FullSnapshot" />
+      </sources>
+      <filter>
+        <input nameref="#Value">
+          <condition type="deny" operator="isNull" />
+        </input>
+      </filter>
+      <cache>false</cache>
+    </transform>
+    <transform modified="1729870605434" name="FT_Cube_BS_Snapshot" type="FieldTransform" modifiedBy="Uvid">
+      <sources>
+        <source nameref="Extr_Cube_BS_Snapshot" />
+      </sources>
+      <functions>
+        <function name="Version" type="Switch">
+          <inputs>
+            <input nameref="Version" />
+          </inputs>
+          <parameters>
+            <default>
+              <result constant="" />
+            </default>
+            <switchs>
+              <switch>
+                <condition operator="equal" type="accept" value="${var_SrcVersion}" />
+                <result constant="${var_TarVersion}" />
+              </switch>
+            </switchs>
+          </parameters>
+        </function>
+      </functions>
+      <cache>false</cache>
+    </transform>
+  </transforms>
+  <loads>
+    <load name="CL_Cube_FullSnapshot" type="Cube" modified="1730268611259" modifiedBy="Uvid">
+      <connection nameref="Jedox OLAP connection" />
+      <source nameref="FT_Cube_FullSnapshot" />
+      <mode>insert</mode>
+      <cube name="${var_cube}" splash="disabled" deactivateSVS="true" cubeLayoutChangeMode="none" />
+      <bulksize>100000</bulksize>
+    </load>
+    <load modified="1729870589719" name="CL_Cube_BS_Snapshot" type="Cube" modifiedBy="Uvid">
+      <source nameref="FT_Cube_BS_Snapshot" />
+      <connection nameref="Jedox OLAP connection" />
+      <mode>add</mode>
+      <bulksize>100000</bulksize>
+      <cube cubeLayoutChangeMode="none" deactivateSVS="true" name="${var_cube}" splash="disabled" />
+    </load>
+    <load modified="1729870485128" name="CL_ZerouOut_Cube_BS_Snapshot" type="Cube" modifiedBy="Uvid">
+      <source nameref="CS_ZeroOut_Cube_BS_Snapshot" />
+      <connection nameref="Jedox OLAP connection" />
+      <mode>delete</mode>
+      <bulksize>100000</bulksize>
+      <cube deactivateSVS="true" name="${var_cube}" splash="disabled" />
+    </load>
+    <load name="CL_ZeroOut_Cube_FullSnapshot" type="Cube" modified="1730268632409" modifiedBy="Uvid">
+      <connection nameref="Jedox OLAP connection" />
+      <source nameref="CS_ZeroOut_Cube_FullSnapshot" />
+      <mode>delete</mode>
+      <cube name="${var_cube}" splash="disabled" deactivateSVS="true" cubeLayoutChangeMode="none" />
+      <bulksize>100000</bulksize>
+    </load>
+  </loads>
+  <jobs>
+    <job modified="1734350984999" name="Job_Groovy_Cube_FullSnapshot" type="Groovy" modifiedBy="Uvid">
+      <comment><![CDATA[LastUpdated:30-OCT-2024$
+Source:Multiple-Cube$
+Target:Multiple-Cube$
+Triggered_By_Button:Yes$
+Button_Location: Admin/Configure and Control Form(configure_forecast - Snapshot full copy btn Step-2)$
+Description:Collecting all the cube names and execute the process / load for each cubes to take snapshot from source version to target version$]]></comment>
+      <jobscript><![CDATA[byattr = API.initSource("FT_CubeName_ByAttr");
+LOG.info('\n+---Cube name filtering by attribute begins: ---------+')
+
+while (byattr.nextRow()){
+  if ( byattr.getColumnString('Snapshot') == 'Y' ) {
+	el = byattr.getColumnString(':element');
+	LOG.info('\n+---Cube name :'+el+ '---------+')
+	API.setProperty("var_cube",el)
+	API.executeLoad("CL_ZeroOut_Cube_FullSnapshot")
+	API.executeLoad("CL_Cube_FullSnapshot")
+  }
+}
+
+LOG.info('\n+--- Process Completed: ---------+')
+// LOG.info('\n+--- Process Check Completed: ---------+')]]></jobscript>
+      <failStatus>inherit</failStatus>
+    </job>
+    <job modified="1734351849208" name="Job_Groovy_Cube_BS_Snapshot" type="Groovy" modifiedBy="Uvid">
+      <comment><![CDATA[LastUpdated:25-OCT-2024$
+Source:Multiple Cube$
+Target:Multiple Cube$
+Triggered_By_Button:Yes$
+Button_Location: Admin/Configure and Control Form(configure_forecast - BS Snapshot btn Step-8)$
+Description:Take Snapshot Forecast to AOP of the BS related cube data for selected time$]]></comment>
+      <jobscript><![CDATA[byattr = API.initSource("FT_CubeName_ByAttr");
+LOG.info('\n+---Cube name filtering by attribute begins: ---------+')
+
+while (byattr.nextRow()){
+  if ( byattr.getColumnString('BS Snapshot') == 'Y' ) {
+	el = byattr.getColumnString(':element');
+	LOG.info('\n+---Cube name :'+el+ '---------+')
+	API.setProperty("var_cube",el)
+	API.executeLoad("CL_ZerouOut_Cube_BS_Snapshot")
+	API.executeLoad("CL_Cube_BS_Snapshot")
+  }
+}
+
+LOG.info('\n+--- Process Completed: ---------+')]]></jobscript>
+      <failStatus>inherit</failStatus>
+    </job>
+  </jobs>
+</project>
