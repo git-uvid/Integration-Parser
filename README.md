@@ -1,2 +1,2 @@
 # Integration-Parser
-Created fpr deploy the Integration Parser into the streamlit cloud.
+Created for deploy the Integration Parser into the streamlit cloud.
