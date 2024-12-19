@@ -89,7 +89,7 @@ st.markdown("""
         .st-emotion-cache-nrabgc p {
             word-break: break-word;
             font-size: 1.1em;
-            color: #41464d;
+            color: #868a92;
             margin-bottom: 25px;
             font-weight: bold;
         }
