@@ -5,7 +5,7 @@ import csv # For reading and writing CSV
 
 # Page configuration
 st.set_page_config(
-    page_title="XML Parser",
+    page_title="Personal App",
     page_icon="favicon.ico",
     layout="wide"
 )
@@ -89,7 +89,7 @@ st.markdown("""
         .st-emotion-cache-nrabgc p {
             word-break: break-word;
             font-size: 1.1em;
-            color: #868a92;
+            color: #646568;
             margin-bottom: 25px;
             font-weight: bold;
         }
@@ -159,7 +159,7 @@ st.markdown("""
 # Welcome Header
 with st.container():
     st.markdown('<h1>Welcome to Your Personal App</h1>', unsafe_allow_html=True)
-    st.write("This tool allows you to effortlessly upload and convert XML job data into a structured CSV format. You can filter and download the data for easy analysis and reporting. With its simple, interactive interface, it's perfect for job management, system monitoring, and data analysis tasks.")
+st.write("This tool allows you to effortlessly upload and convert XML job data into a structured CSV format. You can filter and download the data for easy analysis and reporting. With its simple, interactive interface, it's perfect for job management, system monitoring, and data analysis tasks.")
 
 # Function to load data
 def loaddata(path):
@@ -263,4 +263,3 @@ if uploaded_file is not None:
         st.error(f"Error processing the uploaded file: {e}")
 else:
     st.warning("Please upload an XML file to proceed.")
-
