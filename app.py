@@ -16,7 +16,7 @@ st.markdown("""
         /* Add your custom CSS here */
         h1 {
             font-size: 3em;
-            color: #273746;
+            color: #ffffff;
             margin-bottom: 20px;
             font-weight: 900;
             text-align: center;
