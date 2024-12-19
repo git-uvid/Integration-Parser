@@ -5,7 +5,7 @@ import csv # For reading and writing CSV
 
 # Page configuration
 st.set_page_config(
-    page_title="Personal App",
+    page_title="XML Parser",
     page_icon="favicon.ico",
     layout="wide"
 )
